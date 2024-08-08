@@ -51,8 +51,22 @@ def __get_recommendations_from_json__(json_string):
         print(f"Error getting recommendations: {e}")
         return None
     
-def recomendation_to_track_ids(json_string):
-    tracks = __get_recommendations_from_json__(json_string)
-    return [track[9] for track in tracks]
+def __recomendation_to_track_ids__(json_string):
+    recommendations = __get_recommendations_from_json__(json_string)
+    if recommendations and "tracks" in recommendations:
+        return [track["id"] for track in recommendations["tracks"]]
+    return []
+
+def __track_id_to_title_and_artist__(track_id):
+    track = sp.track(track_id)
+    return f"{track['name']} by {', '.join([artist['name'] for artist in track['artists']])}"
+
+def recomend_songs(json_string):
+    track_ids = __recomendation_to_track_ids__(json_string)
+    if not track_ids:
+        return "No recommendations found."
+    
+    return "\n".join([__track_id_to_title_and_artist__(track_id) for track_id in track_ids])
+
 
 
