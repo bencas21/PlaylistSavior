@@ -57,16 +57,19 @@ def __recomendation_to_track_ids__(json_string):
         return [track["id"] for track in recommendations["tracks"]]
     return []
 
-def __track_id_to_title_and_artist__(track_id):
-    track = sp.track(track_id)
-    return f"{track['name']} by {', '.join([artist['name'] for artist in track['artists']])}"
+def __track_ids_to_title_and_artist__(track_ids):
+    tracks = sp.tracks(track_ids)["tracks"]
+    return [
+        f"{track['name']} by {', '.join([artist['name'] for artist in track['artists']])}"
+        for track in tracks
+    ]
 
 def recomend_songs(json_string):
     track_ids = __recomendation_to_track_ids__(json_string)
     if not track_ids:
         return "No recommendations found."
     
-    return "\n".join([__track_id_to_title_and_artist__(track_id) for track_id in track_ids])
+    return __track_ids_to_title_and_artist__(track_ids)
 
 
 
