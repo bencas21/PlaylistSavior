@@ -34,10 +34,7 @@ def get_recommendations():
         user_question = request.form.get('user-input')  # Ensure this matches the input name in the form
         if user_question:
             try:
-                chatbot_response ="""{
-    "seed_genres": "country",
-    "limit": 20
-}"""
+                chatbot_response = ai_service.get_response(user_question)
             except Exception as e:
                 logging.error(f"Error during chatbot invocation: {e}")
                 output = "Sorry, an error occurred while processing your request."
