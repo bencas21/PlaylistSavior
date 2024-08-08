@@ -30,6 +30,29 @@ def __get_recommendations_from_json__(json_string):
         print(f"Error decoding JSON: {e}")
         return None
     
+    # Convert artist names to IDs
+    if params.get("seed_artists"):
+        artist_names = params["seed_artists"]
+        artist_ids = []
+        for name in artist_names:
+            artist_id = artist_name_to_id(name)
+            if artist_id:
+                artist_ids.append(artist_id)
+            else:
+                print(f"Artist '{name}' not found.")
+        params["seed_artists"] = artist_ids
+    
+    if params.get("seed_tracks"):
+        track_names = params["seed_tracks"]
+        track_ids = []
+        for name in track_names:
+            track_id = song_name_to_id(name)
+            if track_id:
+                track_ids.append(track_id)
+            else:
+                print(f"Track '{name}' not found.")
+        params["seed_tracks"] = track_ids
+
     # Prepare the params dictionary for the recommendations function
     recommendations_params = {
         "seed_artists": params.get("seed_artists"),
@@ -43,13 +66,15 @@ def __get_recommendations_from_json__(json_string):
     # Ensure seed_genres is a list of strings
     if isinstance(recommendations_params["seed_genres"], str):
         recommendations_params["seed_genres"] = [recommendations_params["seed_genres"]]
-
+    
+    print(f"Recommendations params: {recommendations_params}")
     # Call the recommendations function
     try:
         return sp.recommendations(**recommendations_params)
     except Exception as e:
         print(f"Error getting recommendations: {e}")
         return None
+
     
 def __recomendation_to_track_ids__(json_string):
     recommendations = __get_recommendations_from_json__(json_string)
@@ -64,12 +89,36 @@ def __track_ids_to_title_and_artist__(track_ids):
         for track in tracks
     ]
 
+
 def recomend_songs(json_string):
     track_ids = __recomendation_to_track_ids__(json_string)
     if not track_ids:
         return "No recommendations found."
     
     return __track_ids_to_title_and_artist__(track_ids)
+
+def get_genre_list():
+    return sp.recommendation_genre_seeds()["genres"]
+
+def artist_name_to_id(artist_name):
+    results = sp.search(q=f"artist:{artist_name}", type="artist")
+    if "artists" in results and "items" in results["artists"]:
+        artists = results["artists"]["items"]
+        if artists:
+            return artists[0]["id"]
+    return None
+
+
+def song_name_to_id(song_name):
+    results = sp.search(q=f"track:{song_name}", type="track", limit=1)
+    if "tracks" in results and "items" in results["tracks"]:
+        tracks = results["tracks"]["items"]
+        if tracks:
+            return tracks[0]["id"]
+    return None
+
+
+
 
 
 

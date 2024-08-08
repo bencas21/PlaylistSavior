@@ -3,6 +3,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 import logging
 from .get_reccomendation_prompt import get_reccomendation_prompt
+from .spotify import get_genre_list
+
 
 class AIService:
     def __init__(self):
@@ -25,7 +27,10 @@ class AIService:
 
     def get_response(self, UserRequest):
         try:
-            response = self.chatbot_pipeline.invoke({'UserRequest': UserRequest})
+            response = self.chatbot_pipeline.invoke({
+            'UserRequest': UserRequest,
+            'genre_list': str(get_genre_list())
+            })
             print("ai response: ", response)
             return response
         except Exception as e:

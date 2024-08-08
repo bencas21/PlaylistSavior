@@ -5,6 +5,7 @@ from flask import Blueprint, redirect, request, session, url_for, render_templat
 from .spotify import sp, sp_oauth, cache_handler, recomend_songs
 from .ai_service import AIService
 
+
 bp = Blueprint('main', __name__)
 
 ai_service = AIService()

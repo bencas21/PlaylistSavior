@@ -55,6 +55,17 @@
         .output-container p {
             font-weight: bold;
         }
+
+        /* Style for the list of chatbot responses */
+        .chatbot-response-list {
+            list-style-type: none; /* Remove default list styling */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+        }
+
+        .chatbot-response-list li {
+            margin-bottom: 10px; /* Space between each list item */
+        }
     </style>
 </head>
 <body>
@@ -75,10 +86,16 @@
         {% endif %}
         {% if chatbot_response %}
             <div class="output-container">
-                <p>Chatbot Response: {{ chatbot_response }}</p>
+                <p>Chatbot Response:</p>
+                <ul class="chatbot-response-list">
+                    {% for item in chatbot_response %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         {% endif %}
     </div>
 </body>
 </html>
+
 
