@@ -1,9 +1,11 @@
+import json
 from flask import session
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import FlaskSessionCacheHandler
 from .config import Config
 
+# Setup Spotipy with Flask session cache handler
 cache_handler = FlaskSessionCacheHandler(session)
 
 sp_oauth = SpotifyOAuth(
@@ -16,3 +18,41 @@ sp_oauth = SpotifyOAuth(
 )
 
 sp = Spotify(auth_manager=sp_oauth)
+
+def __get_recommendations_from_json__(json_string):
+    # Remove the 'json' tag but keep the rest of the string intact
+    cleaned_json_string = json_string.replace('```json', '').replace('```', '').strip()
+    
+    # Parse the cleaned JSON string into a dictionary
+    try:
+        params = json.loads(cleaned_json_string)
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return None
+    
+    # Prepare the params dictionary for the recommendations function
+    recommendations_params = {
+        "seed_artists": params.get("seed_artists"),
+        "seed_genres": params.get("seed_genres", []),  # Ensure this is a list
+        "seed_tracks": params.get("seed_tracks"),
+        "limit": params.get("limit", 20),  # Default to 20 if not provided
+        "market": params.get("market"),
+        **{key: value for key, value in params.items() if key not in ["seed_artists", "seed_genres", "seed_tracks", "limit", "market"]}
+    }
+
+    # Ensure seed_genres is a list of strings
+    if isinstance(recommendations_params["seed_genres"], str):
+        recommendations_params["seed_genres"] = [recommendations_params["seed_genres"]]
+
+    # Call the recommendations function
+    try:
+        return sp.recommendations(**recommendations_params)
+    except Exception as e:
+        print(f"Error getting recommendations: {e}")
+        return None
+    
+def recomendation_to_track_ids(json_string):
+    tracks = __get_recommendations_from_json__(json_string)
+    return [track[9] for track in tracks]
+
+

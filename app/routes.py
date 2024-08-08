@@ -2,7 +2,7 @@
 
 import logging
 from flask import Blueprint, redirect, request, session, url_for, render_template
-from .spotify import sp, sp_oauth, cache_handler
+from .spotify import sp, sp_oauth, cache_handler, recomendation_to_track_ids
 from .ai_service import AIService
 
 bp = Blueprint('main', __name__)
@@ -41,5 +41,6 @@ def get_recommendations():
 
         # Render the response
         # Assuming response is a single string or needs to be formatted
+        chatbot_response = recomendation_to_track_ids(chatbot_response)
         return render_template('playlists.html', user_question=user_question, chatbot_response=chatbot_response)
 
