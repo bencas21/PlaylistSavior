@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>llama Bot</title>
+</head>
+<body>
+    <h1>llama Bot</h1>
+    
+    <form id="chat-form" method="POST" action="/get_recommendations">
+        <input type="text" id="user-input" name="user-input" required placeholder="Type your message">
+        <button type="submit">
+            Send
+        </button>
+    </form>
+    
+    <div class="response-container">
+        {% if user_input %}
+            <div class="input-text-container">
+                <p>User Question: {{ user_input }}</p>
+            </div>
+        {% endif %}
+        {% if chatbot_response %}
+            <div class="output-container">
+                <p>Chatbot Response: {{ chatbot_response }}</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

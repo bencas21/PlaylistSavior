@@ -1,33 +1,45 @@
-from flask import Blueprint, redirect, request, session, url_for
+# app/routes.py
+
+import logging
+from flask import Blueprint, redirect, request, session, url_for, render_template
 from .spotify import sp, sp_oauth, cache_handler
+from .ai_service import AIService
 
 bp = Blueprint('main', __name__)
+
+ai_service = AIService()
 
 @bp.route('/')
 def home():
     if not sp_oauth.validate_token(cache_handler.get_cached_token()):
         auth_url = sp_oauth.get_authorize_url()
         return redirect(auth_url)
-    return redirect(url_for('main.get_playlists'))
+    return render_template('playlists.html')
 
 @bp.route('/callback')
 def callback():
     sp_oauth.get_access_token(request.args['code'])
-    return redirect(url_for('main.get_playlists'))
+    return redirect(url_for('main.home'))
 
-@bp.route('/get_playlists')
-def get_playlists():
+@bp.route('/get_recommendations', methods=['GET', 'POST'])
+def get_recommendations():
     if not sp_oauth.validate_token(cache_handler.get_cached_token()):
         auth_url = sp_oauth.get_authorize_url()
         return redirect(auth_url)
     
-    playlists = sp.current_user_playlists()
-    playlists_info = [(pl['name'], pl['external_urls']['spotify']) for pl in playlists['items']]  
-    playlists_html = '<br>'.join([f'{name}: {url}' for name, url in playlists_info])
+    user_question = None
+    chatbot_response = None
 
-    return playlists_html
+    if request.method == 'POST':
+        user_question = request.form.get('user-input')  # Ensure this matches the input name in the form
+        if user_question:
+            try:
+                chatbot_response = ai_service.get_response(user_question)
+            except Exception as e:
+                logging.error(f"Error during chatbot invocation: {e}")
+                output = "Sorry, an error occurred while processing your request."
 
-@bp.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('main.home'))
+        # Render the response
+        # Assuming response is a single string or needs to be formatted
+        return render_template('playlists.html', user_question=user_question, chatbot_response=chatbot_response)
+
