@@ -11,7 +11,7 @@ The response should only include JSON with no other explination or follow up as 
 
 
 For example:
-- UserRequest: "I want upbeat pop songs with high danceability and energy that everyone loves by Drake."
+- UserRequest: "I want upbeat pop songs with high danceability and energy that everyone loves similar to Drake."
 - Anwser: 
 {{
     "seed_genres": ["pop", "hip-hop"],
@@ -22,9 +22,25 @@ For example:
     "target_popularity": 100
 }}
 
+Another example:
+- UserRequest: "I want songs by Post Malone that are only country"
+- Anwser: 
+{{
+    "only_from_genre": True
+    "seed_genres": ["pop", "hip-hop"],
+    "only_from_arist": True
+    "seed_artists": ["Drake"],
+    "target_danceability": 0.8,
+    "target_energy": 0.9,
+    "limit": 10
+    "target_popularity": 100
+}}
+
 
 Consider the following parameters for building the API request:
+- **only_from_genre**: A boolean value that specifies if the songs should only be from the specified genre. Should only be True if a user uses a key word that would specify they only want music from that genre (e.g. "only", "just", "specifically", etc.).
 - **seed_genres**: A comma-separated list of genres (e.g. ["pop,rock"]). (do not end with a comma even if it is the last value in the list)
+- **only_from_artist**: A boolean value that specifies if the songs should only be from the specified artist. Should only be True if a user uses a key word that would specify they only want music from that artist (e.g. "by [aritst]", "just", "only" "specifically", etc.).
 - **seed_artists**: A comma-separated list of artist names (e.g. ["drake"]) (do not end with a comma even if it is the last value in the list)
 - **seed_tracks**: A comma-separated list of track names (e.g. ['passionfruit']) (string list) (do not end with a comma even if it is the last value in the list)
 - **limit**: The number of tracks to return (default is 20 if user doesn't specify, range 1-100).
