@@ -27,7 +27,7 @@ Consider the following parameters for building the API request:
 - **seed_genres**: A comma-separated list of genres (e.g. ["pop,rock"]). (do not end with a comma even if it is the last value in the list)
 - **seed_artists**: A comma-separated list of artist names (e.g. ["drake"]) (do not end with a comma even if it is the last value in the list)
 - **seed_tracks**: A comma-separated list of track names (e.g. ['passionfruit']) (string list) (do not end with a comma even if it is the last value in the list)
-- **limit**: The number of tracks to return (default is 20, range 1-100).
+- **limit**: The number of tracks to return (default is 20 if user doesn't specify, range 1-100).
 - **market**: An ISO 3166-1 alpha-2 country code (e.g., "US").
 - **target_danceability**: Values between 0 and 1. Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. A value of 0.0 is least danceable and 1.0 is most danceable.
 - **target_energy**: Values between 0 and 1 representing the desired energy. Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy.
