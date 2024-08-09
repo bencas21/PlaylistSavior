@@ -5,7 +5,7 @@ def get_reccomendation_prompt():
 The response should only include JSON with no other explination or follow up as well as the following requirements: 
 - Always include at least one of the following: `seed_genres`, `seed_artists`, or `seed_tracks`
 - All values for each field should start and end with quatation marks (ex. do not end with a comma even if it is the last value in the list)
-- All seed_genres must be one of the following: 
+- All seed_genres must be one of the following: {genre_list}
 
 
 
