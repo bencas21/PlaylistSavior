@@ -16,7 +16,7 @@ class AIService:
                 get_reccomendation_prompt()
             )
 
-            llama_model = Ollama(model="gemma2:2b")
+            llama_model = Ollama(model="llama3")
             format_output = StrOutputParser()
 
             chatbot_pipeline = prompt | llama_model | format_output

@@ -31,7 +31,7 @@ def __get_recommendations_from_json__(json_string):
         return None
     
     # Convert artist names to IDs
-    if params.get("seed_artists"):
+    if "seed_artists" in params:
         artist_names = params["seed_artists"]
         artist_ids = []
         for name in artist_names:
@@ -42,7 +42,8 @@ def __get_recommendations_from_json__(json_string):
                 print(f"Artist '{name}' not found.")
         params["seed_artists"] = artist_ids
     
-    if params.get("seed_tracks"):
+    # Convert track names to IDs
+    if "seed_tracks" in params:
         track_names = params["seed_tracks"]
         track_ids = []
         for name in track_names:
@@ -53,20 +54,16 @@ def __get_recommendations_from_json__(json_string):
                 print(f"Track '{name}' not found.")
         params["seed_tracks"] = track_ids
 
-    # Prepare the params dictionary for the recommendations function
+    # Ensure all seed parameters are lists
     recommendations_params = {
-        "seed_artists": params.get("seed_artists"),
-        "seed_genres": params.get("seed_genres", []),  # Ensure this is a list
-        "seed_tracks": params.get("seed_tracks"),
-        "limit": params.get("limit", 20),  # Default to 20 if not provided
+        "seed_artists": params.get("seed_artists", []),  # Default to empty list if not provided
+        "seed_genres": params.get("seed_genres", []),    # Ensure this is a list
+        "seed_tracks": params.get("seed_tracks", []),    # Default to empty list if not provided
+        "limit": params.get("limit", 20),                # Default to 20 if not provided
         "market": params.get("market"),
         **{key: value for key, value in params.items() if key not in ["seed_artists", "seed_genres", "seed_tracks", "limit", "market"]}
     }
 
-    # Ensure seed_genres is a list of strings
-    if isinstance(recommendations_params["seed_genres"], str):
-        recommendations_params["seed_genres"] = [recommendations_params["seed_genres"]]
-    
     print(f"Recommendations params: {recommendations_params}")
     # Call the recommendations function
     try:
@@ -75,9 +72,9 @@ def __get_recommendations_from_json__(json_string):
         print(f"Error getting recommendations: {e}")
         return None
 
-    
 def __recomendation_to_track_ids__(json_string):
     recommendations = __get_recommendations_from_json__(json_string)
+
     if recommendations and "tracks" in recommendations:
         return [track["id"] for track in recommendations["tracks"]]
     return []
@@ -85,7 +82,6 @@ def __recomendation_to_track_ids__(json_string):
 def __track_ids_to_tracks(track_ids):
     tracks = sp.tracks(track_ids)["tracks"]
     return tracks
-
 
 def recomend_songs(json_string):
     track_ids = __recomendation_to_track_ids__(json_string)
@@ -104,7 +100,6 @@ def artist_name_to_id(artist_name):
         if artists:
             return artists[0]["id"]
     return None
-
 
 def song_name_to_id(song_name):
     results = sp.search(q=f"track:{song_name}", type="track", limit=1)

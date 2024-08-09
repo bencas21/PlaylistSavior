@@ -65,6 +65,16 @@
 
         .chatbot-response-list li {
             margin-bottom: 10px; /* Space between each list item */
+            position: relative; /* Position relative for image overlay */
+        }
+
+        .chatbot-response-list img {
+            cursor: pointer; /* Change cursor to pointer for clickable images */
+        }
+
+        /* Hide the audio element */
+        audio {
+            display: none;
         }
     </style>
 </head>
@@ -87,15 +97,54 @@
         {% if chatbot_response %}
             <div class="output-container">
                 <p>Chatbot Response:</p>
-                <ul class="chatbot-response-list">
-                    {% for item in chatbot_response %}
-                        <li>{{ item }}</li>
-                    {% endfor %}
-                </ul>
+                {% if chatbot_response|length > 0 %}
+                    <ul class="chatbot-response-list">
+                        {% for item in chatbot_response %}
+                            <li>
+                                <p>Song: {{ item['name'] }}</p>
+                                <p>Artist: {{ item['artists'][0]['name'] }}</p>
+                                <img src="{{ item['album']['images'][0]['url'] }}" width="250" height="250" alt="Album cover" data-preview-url="{{ item['preview_url'] }}">
+                                <audio id="audio-{{ loop.index }}" src="{{ item['preview_url'] }}" preload="auto"></audio>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No tracks were found.</p>
+                {% endif %}
             </div>
         {% endif %}
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('.chatbot-response-list img');
+            
+            images.forEach(img => {
+                img.addEventListener('click', function() {
+                    const previewUrl = this.getAttribute('data-preview-url');
+                    const audio = document.querySelector(`audio[src="${previewUrl}"]`);
+                    
+                    if (audio) {
+                        // Stop any previously playing audio
+                        const currentlyPlaying = document.querySelector('audio.playing');
+                        if (currentlyPlaying && currentlyPlaying !== audio) {
+                            currentlyPlaying.pause();
+                            currentlyPlaying.currentTime = 0;
+                            currentlyPlaying.classList.remove('playing');
+                        }
+                        
+                        if (audio.paused) {
+                            audio.play();
+                            audio.classList.add('playing');
+                        } else {
+                            audio.pause();
+                            audio.currentTime = 0;
+                            audio.classList.remove('playing');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
-
-

@@ -43,5 +43,6 @@ def get_recommendations():
         # Render the response
         # Assuming response is a single string or needs to be formatted
         chatbot_response = recomend_songs(chatbot_response)
+        
         return render_template('playlists.html', user_question=user_question, chatbot_response=chatbot_response)
 
