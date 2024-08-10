@@ -50,7 +50,8 @@ def get_recommendations():
         return render_template(
             'playlists.html', 
             user_question=user_question, 
-            chatbot_response=chatbot_response
+            chatbot_response=chatbot_response,
+
         )
 
 @bp.route('/add_to_playlist', methods=['POST'])
@@ -67,13 +68,12 @@ def add_to_playlist():
         tracks = sp.playlist_tracks(playlist_id)['items']
         
         # Return updated tracks as JSON
-        return render_template(
-            'playlists.html', 
-            playlist_tracks = tracks
-        )
+        return jsonify({'success': True})
     except Exception as e:
         print(f'Error: {e}')
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
 
 
 

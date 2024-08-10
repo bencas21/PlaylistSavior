@@ -56,6 +56,7 @@
     <div class="playlist-container">
         {% if playlist_tracks %}
             <ul>
+
                 {% for track in playlist_tracks %}
                     <li class="track-item">
                         <div class="track-info">
@@ -66,7 +67,7 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <p>No tracks found in the current playlist.</p>
+            <p>{No tracks found in the current playlist.}</p>
         {% endif %}
     </div>
 </body>
