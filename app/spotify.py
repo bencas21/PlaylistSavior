@@ -181,10 +181,13 @@ def recommendation_filter_single_artist(recommendations, artist_ids, human_reque
     return {"tracks": filtered_recommendations[:limit]}
 
 
-def create_new_playlist(user_id, playlist_name = "newPlaylist"):
+def create_new_playlist(user_id, playlist_name, track_ids):
     playlist = sp.user_playlist_create(user_id, playlist_name)
+
+    sp.playlist_add_items(playlist["id"], track_ids )
     playlist_id = playlist["id"]
     return playlist_id
+
 
 
 

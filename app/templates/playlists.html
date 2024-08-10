@@ -169,7 +169,7 @@
                                 <img src="{{ item['album']['images'][0]['url'] }}" width="250" height="250" alt="Album cover">
                                 <audio id="audio-{{ loop.index }}" src="{{ item['preview_url'] }}"></audio>
                                 <button class="play-pause-btn" data-index="{{ loop.index }}" data-playing="false">Play</button>
-                                <button class="add-to-playlist-btn" data-track-id="{{ item['id'] }}">+</button>
+                                <button class="add-to-playlist-btn" data-song-id="{{ item['id'] }}">+</button>
                             </li>
                         {% endfor %}
                     </ul>
@@ -255,26 +255,37 @@
             });
 
             document.querySelectorAll('.add-to-playlist-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const trackId = button.getAttribute('data-track-id');
-                    fetch('/add_to_playlist', {
-                        method: 'POST',
-                        body: JSON.stringify({ track_id: trackId }),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Track added to playlist!');
-                        } else {
-                            alert('Failed to add track to playlist.');
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
-                });
+            button.addEventListener('click', function() {
+                const songId = button.getAttribute('data-song-id');
+                fetch('/add_to_playlist', {
+                    method: 'PUT',
+                    body: JSON.stringify({ song_id: songId }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the playlist with the new tracks
+                        const playlist = document.getElementById('playlist-tracks');
+                        playlist.innerHTML = '';  // Clear the current playlist
+                        data.tracks.forEach(track => {
+                            const listItem = document.createElement('li');
+                            listItem.innerHTML = `
+                <img src="${track['album']['images'][0]['url']}" alt="${track['name']}" width="50" height="50">
+                <span>${track['name']} by ${track['artists'] ? track['artists'][0]['name'] : 'Unknown Artist'}</span>
+            `;
+
+                            playlist.appendChild(listItem);
+                        });
+                    } else {
+                        console.error('Failed to add song:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
             });
+        });
 
             // Initialize
             if (items.length > 0) {

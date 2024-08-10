@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track List</title>
+    <title>Playlist Tracks</title>
     <style>
         /* Basic styling */
         body {
@@ -27,6 +27,8 @@
         }
 
         .track-item {
+            display: flex;
+            align-items: center;
             margin-bottom: 15px;
             padding: 10px;
             border-bottom: 1px solid #ddd;
@@ -34,41 +36,73 @@
 
         .track-info {
             margin-bottom: 10px;
+            flex: 1; /* Allow info to take up remaining space */
         }
 
-        .add-to-playlist-btn {
-            font-size: 14px;
-            padding: 5px 10px;
+        #playlist-tracks {
+            list-style-type: none; /* Remove default list bullets */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+        }
+
+        #playlist-tracks li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #playlist-tracks img {
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .add-to-spotify-btn {
+            font-size: 16px;
+            padding: 10px 20px;
             border-radius: 5px;
             border: none;
             background-color: #17a2b8;
             color: white;
             cursor: pointer;
-            margin-top: 10px;
         }
 
-        .add-to-playlist-btn:hover {
-            background-color: #138496;
+        .add-to-spotify-btn:hover {
+            background-color: #117a8b;
         }
     </style>
 </head>
 <body>
     <div class="playlist-container">
-        {% if playlist_tracks %}
-            <ul>
-
-                {% for track in playlist_tracks %}
-                    <li class="track-item">
-                        <div class="track-info">
-                            <p><strong>Song:</strong> {{ track['name'] }}</p>
-                        </div>
-                        
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>{No tracks found in the current playlist.}</p>
-        {% endif %}
+        <h2>Playlist Tracks</h2>
+        <ul id="playlist-tracks">
+            <!-- Playlist tracks will be dynamically inserted here -->
+        </ul>
+        <button class="add-to-spotify-btn" id="add-playlist-btn">Add Playlist to Spotify</button>
     </div>
+
+    <script>
+            // Handle click event for the "Add All to Spotify Playlist" button
+            document.getElementById('add-playlist-btn').addEventListener('click', function() {
+
+                fetch('/add_spotify_playlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Playlist added to Spotify successfully!');
+                    } else {
+                        console.error('Failed to add playlist:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+    </script>
 </body>
 </html>

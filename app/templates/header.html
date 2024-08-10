@@ -1,4 +1,50 @@
-<!-- header.html -->
-<div id="header">
-    <div id="user-name">User: {{ user_name }}</div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header</title>
+    <style>
+        /* Basic styling for the header */
+        #header {
+            display: flex;
+            justify-content: space-between; /* Align items to the start and end */
+            align-items: center; /* Center items vertically */
+            padding: 10px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #ddd;
+        }
+
+        #user-name {
+            font-size: 18px; /* Increase font size for better readability */
+            color: #333;
+            font-weight: bold; /* Make the text bold */
+            margin-right: 20px; /* Add space to the right of the user name */
+            margin-top: 10px;
+        }
+
+        .logout-btn {
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #dc3545;
+            color: white;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <div id="user-name">User: {{ user_name }}</div>
+        <a href="{{ url_for('main.logout') }}">
+            <button class="logout-btn">Logout</button>
+        </a>
+    </div>
+</body>
+</html>

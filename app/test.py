@@ -8,7 +8,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
     client_id='194ca0faa98d44e9b9b9940785c64e8d',
     client_secret='253d7220dbc84f02ba9d53c75a0bf29d',
     redirect_uri='http://localhost:5000/callback',
-    scope='user-library-read playlist-read-private user-read-playback-state user-read-currently-playing'
+    scope='user-library-read playlist-read-private user-read-playback-state user-read-currently-playing user-modify-playback-state user-read-playback-state'
 ))
 
 def test_spotify_connection():
