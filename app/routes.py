@@ -30,19 +30,28 @@ def get_recommendations():
     
     user_question = None
     chatbot_response = None
+    artist_only = False
 
     if request.method == 'POST':
         user_question = request.form.get('user-input')  # Ensure this matches the input name in the form
         if user_question:
             try:
-                chatbot_response = ai_service.get_response(user_question)
+                # Get the initial chatbot response
+                chatbot_response = ai_service.get_response_reccomendation(user_question)
+
+
             except Exception as e:
                 logging.error(f"Error during chatbot invocation: {e}")
                 output = "Sorry, an error occurred while processing your request."
 
-        # Render the response
-        # Assuming response is a single string or needs to be formatted
+        # Assuming `recomend_songs` formats or processes the chatbot response
         chatbot_response = recomend_songs(chatbot_response)
         
-        return render_template('playlists.html', user_question=user_question, chatbot_response=chatbot_response)
+        return render_template(
+            'playlists.html', 
+            user_question=user_question, 
+            chatbot_response=chatbot_response,
+        )
+
+
 

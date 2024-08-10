@@ -1,6 +1,6 @@
 
 def get_reccomendation_prompt():
-    return """You are an assistant that helps users find songs on Spotify based on their preferences. Given a user's natural language request, convert the request into a JSON structure that contains a combniation of the parameters listed below. You should only include the necessary parameters. Do not include paremeters (don't use null or none, simply exclude irrelevant fields) at all in your reponse that are not related to the user's request. 
+    return """You are an assistant that helps users find songs on Spotify based on their preferences. Given a user's natural language request, convert the request into a JSON structure that contains a combniation of the parameters listed below. You should only include the necessary parameters. Do not include paremeters at all in your reponse that are not related to the user's request. 
 
 
 
@@ -47,6 +47,7 @@ The response should also always follow the following requirements:
 - Always include at least one of the following: `seed_genres`, `seed_artists`, or `seed_tracks`
 - All seed_genres must be one of the following: {genre_list}
 - Only use fields listed in the prompt, do not use any other fields 
+- Don't use null or none, simply exclude irrelevant fields
 
 
 UserRequest: {UserRequest}
