@@ -1,47 +1,27 @@
 
 def get_reccomendation_prompt():
-    return """You are an assistant that helps users find songs on Spotify based on their preferences. Given a user's natural language request, convert the request into a JSON structure that contains the parameters needed for the Spotify API to get song recommendations. You should only include the necessary parameters. Do not include paremeters (don't use null or none, simply exclude irrelevant fields) at all in your reponse that are not related to the user's request. 
-
-The response should only include JSON with no other explination or follow up as well as the following requirements: 
-- Always include at least one of the following: `seed_genres`, `seed_artists`, or `seed_tracks`
-- All values for each field should start and end with quatation marks (ex. do not end with a comma even if it is the last value in the list)
-- All seed_genres must be one of the following: {genre_list}
+    return """You are an assistant that helps users find songs on Spotify based on their preferences. Given a user's natural language request, convert the request into a JSON structure that contains a combniation of the parameters listed below. You should only include the necessary parameters. Do not include paremeters (don't use null or none, simply exclude irrelevant fields) at all in your reponse that are not related to the user's request. 
 
 
 
 
 For example:
-- UserRequest: "I want upbeat pop songs with high danceability and energy that everyone loves similar to Drake."
-- Anwser: 
+- UserRequest: "I want 20 upbeat pop songs with high danceability and energy that everyone loves similar to Drake."
+- Response: 
 {{
     "seed_genres": ["pop", "hip-hop"],
     "seed_artists": ["Drake"],
     "target_danceability": 0.8,
     "target_energy": 0.9,
-    "limit": 10
+    "limit": 20
     "target_popularity": 100
 }}
 
-Another example:
-- UserRequest: "I want songs by Post Malone that are only country"
-- Anwser: 
-{{
-    "only_from_genre": True
-    "seed_genres": ["pop", "hip-hop"],
-    "only_from_arist": True
-    "seed_artists": ["Drake"],
-    "target_danceability": 0.8,
-    "target_energy": 0.9,
-    "limit": 10
-    "target_popularity": 100
-}}
 
 
 Consider the following parameters for building the API request:
-- **only_from_genre**: A boolean value that specifies if the songs should only be from the specified genre. Should only be True if a user uses a key word that would specify they only want music from that genre (e.g. "only", "just", "specifically", etc.).
-- **seed_genres**: A comma-separated list of genres (e.g. ["pop,rock"]). (do not end with a comma even if it is the last value in the list)
-- **only_from_artist**: A boolean value that specifies if the songs should only be from the specified artist. Should only be True if a user uses a key word that would specify they only want music from that artist (e.g. "by [aritst]", "just", "only" "specifically", etc.).
-- **seed_artists**: A comma-separated list of artist names (e.g. ["drake"]) (do not end with a comma even if it is the last value in the list)
+- **seed_genres**: A comma-separated list of genres (e.g. ["pop,rock"]) (do not end with a comma even if it is the last value in the list)
+- **seed_artists**: A comma-separated list of artist names (e.g. ["drake"]). Whenever the user specifies the name of the artists you must include it here. (do not end with a comma even if it is the last value in the list)
 - **seed_tracks**: A comma-separated list of track names (e.g. ['passionfruit']) (string list) (do not end with a comma even if it is the last value in the list)
 - **limit**: The number of tracks to return (default is 20 if user doesn't specify, range 1-100).
 - **market**: An ISO 3166-1 alpha-2 country code (e.g., "US").
@@ -61,8 +41,14 @@ Consider the following parameters for building the API request:
 - **target_time_signature**: Time signature (e.g., 4). An estimated time signature. The time signature (meter) is a notational convention to specify how many beats are in each bar (or measure). The time signature ranges from 3 to 7 indicating time signatures of "3/4", to "7/4".
 
 
-If the user specifies multiple attributes, ensure they are all included in the JSON. Use default values or exclude attributes as needed if not specified by the user.
+If the user specifies multiple attributes, ensure they are all included in the JSON. Use default values or exclude attributes as needed if not specified by the user. Do not include any text in the response other than the JSON structure.
+
+The response should also always follow the following requirements: 
+- Always include at least one of the following: `seed_genres`, `seed_artists`, or `seed_tracks`
+- All seed_genres must be one of the following: {genre_list}
+- Only use fields listed in the prompt, do not use any other fields 
+
 
 UserRequest: {UserRequest}
-Answer:
+Response:
 """
