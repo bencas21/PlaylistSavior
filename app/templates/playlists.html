@@ -3,89 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>llama Bot</title>
+    <title>PlaylistSavior</title>
     <style>
-        /* Style for the chat form */
-        #chat-form {
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 20px;
+            background-color: #f4f4f4;
         }
 
-        /* Style for the textarea */
-        #user-input {
-            width: 100%;
-            max-width: 600px; /* Adjust this width as needed */
-            height: 150px; /* Make the textarea taller */
-            padding: 10px;
-            font-size: 16px; /* Adjust font size as needed */
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            margin-bottom: 10px; /* Space between textarea and button */
-            overflow-y: auto; /* Scrollbar if needed */
-            resize: vertical; /* Allow vertical resizing */
-        }
-
-        /* Style for the submit button */
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff; /* Adjust button color as needed */
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3; /* Adjust button hover color */
-        }
-
-        /* Style for the response container */
-        .response-container {
+        h1 {
             margin-top: 20px;
         }
 
-        .input-text-container, .output-container {
+        #chat-form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #user-input {
+            width: 300px;
+            height: 100px;
+            font-size: 18px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
             margin-bottom: 10px;
+            resize: none; /* Disable resizing */
         }
 
-        .output-container p {
-            font-weight: bold;
+        button {
+            font-size: 18px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
         }
 
-        /* Style for the list of chatbot responses */
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .response-container {
+            margin-top: 20px;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        .input-text-container {
+            margin-bottom: 20px;
+        }
+
+        .output-container {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
         .chatbot-response-list {
-            list-style-type: none; /* Remove default list styling */
-            padding: 0; /* Remove default padding */
-            margin: 0; /* Remove default margin */
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
         }
 
         .chatbot-response-list li {
-            margin-bottom: 10px; /* Space between each list item */
-            position: relative; /* Position relative for image overlay */
+            margin-bottom: 20px;
+            position: relative;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
         }
 
         .chatbot-response-list img {
-            cursor: pointer; /* Change cursor to pointer for clickable images */
+            display: block;
+            margin: 0 auto;
+            border-radius: 5px;
         }
 
-        /* Hide the audio element */
-        audio {
-            display: none;
+        .nav-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-buttons button {
+            font-size: 18px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        .nav-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .play-pause-btn {
+            font-size: 16px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .play-pause-btn.pause {
+            background-color: #dc3545;
         }
     </style>
 </head>
 <body>
     <h1>llama Bot</h1>
-    
+    {% include 'header.html' %}
     <form id="chat-form" method="POST" action="/get_recommendations">
         <textarea id="user-input" name="user-input" required placeholder="Type your message"></textarea>
-        <button type="submit">
-            Send
-        </button>
+        <button type="submit">Send</button>
     </form>
     
     <div class="response-container">
@@ -104,10 +150,15 @@
                                 <p>Song: {{ item['name'] }}</p>
                                 <p>Artist: {{ item['artists'][0]['name'] }}</p>
                                 <img src="{{ item['album']['images'][0]['url'] }}" width="250" height="250" alt="Album cover" data-preview-url="{{ item['preview_url'] }}">
-                                <audio id="audio-{{ loop.index }}" src="{{ item['preview_url'] }}" preload="auto"></audio>
+                                <audio id="audio-{{ loop.index }}" src="{{ item['preview_url'] }}"></audio>
+                                <button class="play-pause-btn" data-index="{{ loop.index }}" data-playing="false">Play</button>
                             </li>
                         {% endfor %}
                     </ul>
+                    <div class="nav-buttons">
+                        <button id="prev-btn">Previous</button>
+                        <button id="next-btn">Next</button>
+                    </div>
                 {% else %}
                     <p>No tracks were found.</p>
                 {% endif %}
@@ -117,33 +168,78 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const images = document.querySelectorAll('.chatbot-response-list img');
-            
-            images.forEach(img => {
-                img.addEventListener('click', function() {
-                    const previewUrl = this.getAttribute('data-preview-url');
-                    const audio = document.querySelector(`audio[src="${previewUrl}"]`);
-                    
-                    if (audio) {
-                        // Stop any previously playing audio
-                        const currentlyPlaying = document.querySelector('audio.playing');
-                        if (currentlyPlaying && currentlyPlaying !== audio) {
-                            currentlyPlaying.pause();
-                            currentlyPlaying.currentTime = 0;
-                            currentlyPlaying.classList.remove('playing');
-                        }
-                        
-                        if (audio.paused) {
-                            audio.play();
-                            audio.classList.add('playing');
-                        } else {
-                            audio.pause();
-                            audio.currentTime = 0;
-                            audio.classList.remove('playing');
+            const list = document.querySelector('.chatbot-response-list');
+            const items = list.querySelectorAll('li');
+            let currentIndex = 0;
+
+            function showItem(index) {
+                items.forEach((item, i) => {
+                    item.style.display = (i === index) ? 'block' : 'none';
+                });
+            }
+
+            function playAudio(index) {
+                const audio = items[index].querySelector('audio');
+                const playPauseBtn = items[index].querySelector('.play-pause-btn');
+
+                if (audio) {
+                    const currentlyPlaying = document.querySelector('audio.playing');
+                    if (currentlyPlaying && currentlyPlaying !== audio) {
+                        currentlyPlaying.pause();
+                        currentlyPlaying.currentTime = 0;
+                        currentlyPlaying.classList.remove('playing');
+                        const otherBtn = currentlyPlaying.parentElement.querySelector('.play-pause-btn');
+                        if (otherBtn) {
+                            otherBtn.textContent = 'Play';
+                            otherBtn.classList.remove('pause');
                         }
                     }
+
+                    if (audio.paused) {
+                        audio.play();
+                        audio.classList.add('playing');
+                        playPauseBtn.textContent = 'Pause';
+                        playPauseBtn.classList.add('pause');
+                    } else {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        audio.classList.remove('playing');
+                        playPauseBtn.textContent = 'Play';
+                        playPauseBtn.classList.remove('pause');
+                    }
+                }
+            }
+
+            function handleNavigation(next = true) {
+                currentIndex = (next) ? (currentIndex + 1) % items.length : (currentIndex - 1 + items.length) % items.length;
+                showItem(currentIndex);
+                playAudio(currentIndex);
+            }
+
+            document.getElementById('next-btn').addEventListener('click', () => handleNavigation(true));
+            document.getElementById('prev-btn').addEventListener('click', () => handleNavigation(false));
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'ArrowRight') {
+                    handleNavigation(true);
+                } else if (event.key === 'ArrowLeft') {
+                    handleNavigation(false);
+                }
+            });
+
+            document.querySelectorAll('.play-pause-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = button.getAttribute('data-index');
+                    const isPlaying = button.getAttribute('data-playing') === 'true';
+                    playAudio(index - 1);
+                    button.setAttribute('data-playing', !isPlaying);
                 });
             });
+
+            // Initialize
+            if (items.length > 0) {
+                showItem(currentIndex);
+            }
         });
     </script>
 </body>

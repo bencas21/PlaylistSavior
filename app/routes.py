@@ -15,7 +15,7 @@ def home():
     if not sp_oauth.validate_token(cache_handler.get_cached_token()):
         auth_url = sp_oauth.get_authorize_url()
         return redirect(auth_url)
-    return render_template('playlists.html')
+    return render_template('playlists.html', user_name=sp.current_user()['display_name'])
 
 @bp.route('/callback')
 def callback():
@@ -30,7 +30,6 @@ def get_recommendations():
     
     user_question = None
     chatbot_response = None
-    artist_only = False
 
     if request.method == 'POST':
         user_question = request.form.get('user-input')  # Ensure this matches the input name in the form
@@ -46,11 +45,11 @@ def get_recommendations():
 
         # Assuming `recomend_songs` formats or processes the chatbot response
         chatbot_response = recomend_songs(chatbot_response,user_question)
-        
+        print(sp.current_user()['display_name'])
         return render_template(
             'playlists.html', 
             user_question=user_question, 
-            chatbot_response=chatbot_response,
+            chatbot_response=chatbot_response
         )
 
 
