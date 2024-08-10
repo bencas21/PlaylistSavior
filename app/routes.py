@@ -17,6 +17,7 @@ def home():
         return redirect(auth_url)
     return render_template('playlists.html', user_name=sp.current_user()['display_name'])
 
+
 @bp.route('/callback')
 def callback():
     sp_oauth.get_access_token(request.args['code'])
@@ -45,35 +46,33 @@ def get_recommendations():
 
         # Assuming `recomend_songs` formats or processes the chatbot response
         chatbot_response = recomend_songs(chatbot_response,user_question)
-        session['playlist_id'] = create_new_playlist(user_id = sp.current_user()['id'])
+        session['tracks_for_playlist'] = []
         
         return render_template(
             'playlists.html', 
             user_question=user_question, 
             chatbot_response=chatbot_response,
+            playlist_tracks = session.get('tracks_for_playlist', [])
 
         )
 
-@bp.route('/add_to_playlist', methods=['POST'])
+@bp.route('/add_to_playlist', methods=['PUT'])
 def add_to_playlist():
     try:
         data = request.get_json()
+        print(data)
         track_id = data.get('track_id')
-        playlist_id = session.get('playlist_id')
-        
-        # Add the track to the playlist
-        sp.playlist_add_items(playlist_id, [track_id])
-        
-        # Fetch updated playlist tracks
-        tracks = sp.playlist_tracks(playlist_id)['items']
-        
+        print(track_id)
+        if 'tracks_for_playlist' not in session:
+            session['tracks_for_playlist'] = []
+        session['tracks_for_playlist'].append(track_id)
+        print(session['tracks_for_playlist'])
+
         # Return updated tracks as JSON
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'tracks': session.get('tracks_for_playlist', [])})
     except Exception as e:
         print(f'Error: {e}')
         return jsonify({'success': False, 'error': str(e)}), 500
-
-
 
 
 
