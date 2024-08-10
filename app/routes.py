@@ -45,7 +45,7 @@ def get_recommendations():
                 output = "Sorry, an error occurred while processing your request."
 
         # Assuming `recomend_songs` formats or processes the chatbot response
-        chatbot_response = recomend_songs(chatbot_response)
+        chatbot_response = recomend_songs(chatbot_response,user_question)
         
         return render_template(
             'playlists.html', 

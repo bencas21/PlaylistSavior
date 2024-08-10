@@ -19,7 +19,7 @@ sp_oauth = SpotifyOAuth(
 
 sp = Spotify(auth_manager=sp_oauth)
 
-def __get_recommendations_from_json__(json_dict):
+def __get_recommendations_from_json__(json_dict,user_request):
     
     
     # Parse the cleaned JSON string into a dictionary
@@ -67,14 +67,14 @@ def __get_recommendations_from_json__(json_dict):
     # Call the recommendations function
     try:
         if params["artist_only"] == True:
-            return reccomendation_filter_single_artist(sp.recommendations(**recommendations_params), params["seed_artists"][0], params["limit"])
+            return reccomendation_filter_single_artist(sp.recommendations(**recommendations_params), params["seed_artists"][0], user_request, params["limit"])
         return sp.recommendations(**recommendations_params)
     except Exception as e:
         print(f"Error getting recommendations: {e}")
         return None
 
-def __recomendation_to_track_ids__(json_string):
-    recommendations = __get_recommendations_from_json__(json_string)
+def __recomendation_to_track_ids__(json_string,user_request):
+    recommendations = __get_recommendations_from_json__(json_string,user_request)
 
     if recommendations and "tracks" in recommendations:
         return [track["id"] for track in recommendations["tracks"]]
@@ -84,8 +84,8 @@ def __track_ids_to_tracks(track_ids):
     tracks = sp.tracks(track_ids)["tracks"]
     return tracks
 
-def recomend_songs(json_string, artist_only=False):
-    track_ids = __recomendation_to_track_ids__(json_string)
+def recomend_songs(json_string, user_request):
+    track_ids = __recomendation_to_track_ids__(json_string,user_request)
     if not track_ids:
         return "No recommendations found."
     
@@ -118,44 +118,72 @@ def get_artist_from_track_id(track_id):
 
 
 
-def reccomendation_filter_single_artist(recommendations, artist_id, limit=10):
-    # Initialize list to store filtered tracks
+def reccomendation_filter_single_artist(recommendations, artist_id, human_request, limit=10):
+    # Initialize lists and sets to store filtered tracks and track IDs
     filtered_recommendations = []
+    unique_track_ids = set()
+    
+    # Get the artist's name
     artist_name = sp.artist(artist_id).get('name')
 
-    # Search for tracks by the given artist name
-    search_results = sp.search(q=f'artist:{artist_name}', type='track', limit=50)  # Adjust the limit as needed
-    
-    # Extract tracks from search results
-    tracks = search_results.get('tracks', {}).get('items', [])
+    # Filter tracks from the initial recommendations
+    if "tracks" in recommendations:
+        for track in recommendations["tracks"]:
+            if any(artist_name in artist['name'] for artist in track.get('artists', [])):
+                if track['id'] not in unique_track_ids:
+                    filtered_recommendations.append(track)
+                    unique_track_ids.add(track['id'])
+                    if len(filtered_recommendations) >= limit:
+                        break
 
-    # Filter tracks by artist name and append to recommendations
-    for track in tracks:
-        if artist_name in [artist['name'] for artist in track.get('artists', [])]:
-            filtered_recommendations.append(track)
-            if len(filtered_recommendations) >= limit:
-                break
-
-    # If the filtered list is not enough, fetch more tracks
+    # If not enough tracks, search for more
     if len(filtered_recommendations) < limit:
+        # Perform search using the human request
+        search_results = sp.search(q=human_request, type='track', limit=50)
+        tracks = search_results.get('tracks', {}).get('items', [])
+
+        # Filter these search results by artist name
+        for track in tracks:
+            if artist_name in [artist['name'] for artist in track.get('artists', [])]:
+                if track['id'] not in unique_track_ids:
+                    filtered_recommendations.append(track)
+                    unique_track_ids.add(track['id'])
+                    if len(filtered_recommendations) >= limit:
+                        break
+
+        # Fetch more tracks if needed
         offset = 50
         while len(filtered_recommendations) < limit:
-            more_results = sp.search(q=f'artist:{artist_name}', type='track', limit=50, offset=offset)
+            more_results = sp.search(q=human_request, type='track', limit=50, offset=offset)
             more_tracks = more_results.get('tracks', {}).get('items', [])
-            
+
             if not more_tracks:
                 break
-            
+
             for track in more_tracks:
                 if artist_name in [artist['name'] for artist in track.get('artists', [])]:
-                    if track not in filtered_recommendations:
+                    if track['id'] not in unique_track_ids:
                         filtered_recommendations.append(track)
+                        unique_track_ids.add(track['id'])
                         if len(filtered_recommendations) >= limit:
                             break
             offset += 50
 
+        # If still not enough tracks, get general recommendations without artist constraint
+        if len(filtered_recommendations) < limit:
+            remaining_limit = limit - len(filtered_recommendations)
+            general_recommendations = sp.recommendations(seed_artists=[artist_id], limit=remaining_limit)
+            for track in general_recommendations.get('tracks', []):
+                if track['id'] not in unique_track_ids:
+                    filtered_recommendations.append(track)
+                    unique_track_ids.add(track['id'])
+                    if len(filtered_recommendations) >= limit:
+                        break
+
     # Return the required number of tracks
     return {"tracks": filtered_recommendations[:limit]}
+
+
 
 
 
