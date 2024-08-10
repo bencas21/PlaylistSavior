@@ -2,7 +2,7 @@
 
 import logging
 from flask import Blueprint, redirect, request, session, url_for, render_template, jsonify
-from .spotify import sp, sp_oauth, cache_handler, recomend_songs, create_new_playlist
+from .spotify import sp, sp_oauth, cache_handler, recomend_songs, track_ids_to_tracks
 from .ai_service import AIService
 
 
@@ -45,13 +45,12 @@ def get_recommendations():
 
         # Assuming `recomend_songs` formats or processes the chatbot response
         chatbot_response = recomend_songs(chatbot_response,user_question)
-        session['playlist_id'] = create_new_playlist(user_id = sp.current_user()['id'])
+        session['tracks_for_playlist'] = []
         
         return render_template(
             'playlists.html', 
             user_question=user_question, 
             chatbot_response=chatbot_response,
-
         )
 
 @bp.route('/add_to_playlist', methods=['POST'])
@@ -59,13 +58,9 @@ def add_to_playlist():
     try:
         data = request.get_json()
         track_id = data.get('track_id')
-        playlist_id = session.get('playlist_id')
+        session['tracks_for_playlist'].append(track_id)
         
-        # Add the track to the playlist
-        sp.playlist_add_items(playlist_id, [track_id])
-        
-        # Fetch updated playlist tracks
-        tracks = sp.playlist_tracks(playlist_id)['items']
+        print(session['tracks_for_playlist'])
         
         # Return updated tracks as JSON
         return jsonify({'success': True})
