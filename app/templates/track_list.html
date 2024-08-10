@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track List</title>
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+        }
+
+        .playlist-container {
+            margin-top: 20px;
+            width: 90%;
+            max-width: 800px;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .track-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .track-info {
+            margin-bottom: 10px;
+        }
+
+        .add-to-playlist-btn {
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #17a2b8;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .add-to-playlist-btn:hover {
+            background-color: #138496;
+        }
+    </style>
+</head>
+<body>
+    <div class="playlist-container">
+        {% if playlist_tracks %}
+            <ul>
+                {% for track in playlist_tracks %}
+                    <li class="track-item">
+                        <div class="track-info">
+                            <p><strong>Song:</strong> {{ track['name'] }}</p>
+                        </div>
+                        <button class="add-to-playlist-btn" data-track-id="{{ track['id'] }}">Add to Playlist</button>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No tracks found in the current playlist.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
