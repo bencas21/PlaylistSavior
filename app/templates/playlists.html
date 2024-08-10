@@ -124,6 +124,23 @@
         .play-pause-btn.pause {
             background-color: #dc3545;
         }
+
+        .add-to-playlist-btn {
+            font-size: 16px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #17a2b8;
+            color: white;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .add-to-playlist-btn:hover {
+            background-color: #117a8b;
+        }
     </style>
 </head>
 <body>
@@ -149,9 +166,10 @@
                             <li>
                                 <p>Song: {{ item['name'] }}</p>
                                 <p>Artist: {{ item['artists'][0]['name'] }}</p>
-                                <img src="{{ item['album']['images'][0]['url'] }}" width="250" height="250" alt="Album cover" data-preview-url="{{ item['preview_url'] }}">
+                                <img src="{{ item['album']['images'][0]['url'] }}" width="250" height="250" alt="Album cover">
                                 <audio id="audio-{{ loop.index }}" src="{{ item['preview_url'] }}"></audio>
                                 <button class="play-pause-btn" data-index="{{ loop.index }}" data-playing="false">Play</button>
+                                <button class="add-to-playlist-btn" data-track-id="{{ item['id'] }}">+</button>
                             </li>
                         {% endfor %}
                     </ul>
@@ -233,6 +251,28 @@
                     const isPlaying = button.getAttribute('data-playing') === 'true';
                     playAudio(index - 1);
                     button.setAttribute('data-playing', !isPlaying);
+                });
+            });
+
+            document.querySelectorAll('.add-to-playlist-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const trackId = button.getAttribute('data-track-id');
+                    fetch('/add_to_playlist', {
+                        method: 'POST',
+                        body: JSON.stringify({ track_id: trackId }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Track added to playlist!');
+                        } else {
+                            alert('Failed to add track to playlist.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
                 });
             });
 

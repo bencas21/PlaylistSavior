@@ -1,7 +1,7 @@
 # app/routes.py
 
 import logging
-from flask import Blueprint, redirect, request, session, url_for, render_template
+from flask import Blueprint, redirect, request, session, url_for, render_template, jsonify
 from .spotify import sp, sp_oauth, cache_handler, recomend_songs
 from .ai_service import AIService
 
@@ -51,6 +51,24 @@ def get_recommendations():
             user_question=user_question, 
             chatbot_response=chatbot_response
         )
+    from flask import Blueprint, request, jsonify
+
+bp = Blueprint('main', __name__)
+
+@bp.route('/add_to_playlist', methods=['POST'])
+def add_to_playlist():
+    try:
+        data = request.get_json()
+        track_id = data.get('track_id')
+
+        # Process the track_id (e.g., add it to a playlist in your database)
+
+        # For demonstration, we'll just return a success response
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        print(f'Error: {e}')
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 
 
