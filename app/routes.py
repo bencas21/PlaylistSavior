@@ -86,6 +86,45 @@ def logout():
     # Redirect to the home page or login page
     return redirect(url_for('main.home'))
 
+@bp.route('/play_music')
+def play_music():
+    
+    return render_template('play_music.html')
+
+
+@bp.route('/get_spotify_token')
+def get_spotify_token():
+    token = sp_oauth.get_access_token()["access_token"]
+    print(token)
+    return jsonify({'token': token})
+
+
+
+@bp.route('/save_device_id', methods=['POST'])
+def save_device_id():
+    # Get the JSON data from the request
+    data = request.get_json()
+    
+    # Extract device_id from the JSON data
+    device_id = data.get('device_id')
+    
+    # Store the device_id in the session
+    session['device_id'] = device_id
+    
+    # Print the device_id to the server console for debugging
+    print(f"Device ID received: {device_id}")
+    
+    # Start playback using the Spotify API
+    try:
+        sp.start_playback(device_id=device_id, context_uri="spotify:album:1Je1IMUlBXcx1Fz0WE7oPT")
+    except Exception as e:
+        print(f"Error starting playback: {e}")
+        return jsonify({'error': 'Playback failed'}), 500
+    
+    # Return a JSON response with the device ID
+    return jsonify({'device_id': device_id}), 200
+
+
 
 
 
