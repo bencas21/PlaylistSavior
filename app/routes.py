@@ -95,7 +95,6 @@ def play_music():
 @bp.route('/get_spotify_token')
 def get_spotify_token():
     token = sp_oauth.get_access_token()["access_token"]
-    print(token)
     return jsonify({'token': token})
 
 

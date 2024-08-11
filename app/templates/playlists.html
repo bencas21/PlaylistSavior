@@ -171,6 +171,7 @@
                             <div class="controls">
                                 <button class="play-btn" data-uri="spotify:track:{{ item.id }}">Play</button>
                                 <button class="pause-btn" style="display:none;">Pause</button>
+                                <button class="add-to-playlist-btn" data-song-id="{{ item['id'] }}">+</button>
                             </div>
                         </li>
                     {% endfor %}
@@ -203,9 +204,18 @@
                 showItem(currentIndex);
                 playAudio(currentIndex);
             }
-            function playAudio(index) {
-            const playButton = items[index].querySelector('.play-btn');
-            playButton.click();  // Simulate a click on the play button
+            function pauseAudio(index) {
+        const pauseButton = items[index].querySelector('.pause-btn');
+        if (pauseButton) {
+            pauseButton.click();  // Simulate a click on the pause button if it exists
+        }
+    }
+
+    function playAudio(index) {
+        const playButton = items[index].querySelector('.play-btn');
+        if (playButton) {
+            playButton.click();  // Simulate a click on the play button if it exists
+        }
     }
             document.getElementById('next-btn').addEventListener('click', () => handleNavigation(true));
             document.getElementById('prev-btn').addEventListener('click', () => handleNavigation(false));
