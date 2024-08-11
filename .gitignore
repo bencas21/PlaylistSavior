@@ -5,7 +5,7 @@ __pycache__/
 Dockerfile
 # C extensions
 *.so
-
+playlist-savior-key-pair.pem
 # Distribution / packaging
 flask_session/
 .Python
