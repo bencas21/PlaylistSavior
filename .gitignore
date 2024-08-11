@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 Dockerfile
+containers.json
+public-endpoint.json
 # C extensions
 *.so
 playlist-savior-key-pair.pem
