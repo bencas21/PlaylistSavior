@@ -1,11 +1,12 @@
 import json
-from langchain_community.llms import Ollama
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 import logging
 from .spotify import get_genre_list
 from .get_response_artist_only_prompt import get_response_artist_only_prompt
 from .get_reccomendation_prompt import get_reccomendation_prompt
+from .config import Config
 
 
 class AIService:
@@ -19,10 +20,10 @@ class AIService:
                 get_reccomendation_prompt()
             )
 
-            llama_model = Ollama(model="llama3")
+            model = ChatOpenAI(openai_api_key=Config.OPEN_API_KEY, model="gpt-4o-mini")
             format_output = StrOutputParser()
 
-            chatbot_pipeline = prompt | llama_model | format_output
+            chatbot_pipeline = prompt | model | format_output
             return chatbot_pipeline
         except Exception as e:
             logging.error(f"Failed to initialize chatbot: {e}")
@@ -34,10 +35,10 @@ class AIService:
                 get_response_artist_only_prompt()
             )
 
-            llama_model = Ollama(model="llama3")
+            model = ChatOpenAI(openai_api_key=Config.OPEN_API_KEY, model_name="gpt-4o-mini")
             format_output = StrOutputParser()
 
-            artist_only_pipeline = prompt | llama_model | format_output
+            artist_only_pipeline = prompt | model | format_output
             return artist_only_pipeline
         except Exception as e:
             logging.error(f"Failed to initialize artist-only pipeline: {e}")

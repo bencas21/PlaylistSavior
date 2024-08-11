@@ -66,7 +66,7 @@ def __get_recommendations_from_json__(json_dict,user_request):
     # Call the recommendations function
     try:
         if params["artist_only"] == True:
-            return recommendation_filter_single_artist(sp.recommendations(**recommendations_params), params["seed_artists"], user_request, params["limit"])
+            return recommendation_filter_single_artist(sp.recommendations(**recommendations_params), recommendations_params["seed_artists"], user_request, recommendations_params["limit"])
         return sp.recommendations(**recommendations_params)
     except Exception as e:
         print(f"Error getting recommendations: {e}")
@@ -121,7 +121,6 @@ def recommendation_filter_single_artist(recommendations, artist_ids, human_reque
     # Initialize lists and sets to store filtered tracks and track IDs
     filtered_recommendations = []
     unique_track_ids = set()
-    
     # Filter tracks from the initial recommendations
     if "tracks" in recommendations:
         for track in recommendations["tracks"]:
