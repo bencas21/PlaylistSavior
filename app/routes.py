@@ -1,6 +1,7 @@
+import json
 import logging
 from flask import Blueprint, redirect, request, session, url_for, render_template, jsonify
-from .spotify import sp, sp_oauth, cache_handler, recomend_songs, create_new_playlist, track_ids_to_tracks
+from .spotify import sp, sp_oauth, cache_handler, recomend_songs, create_new_playlist, track_ids_to_tracks, get_artists_from_name
 from .ai_service import AIService
 
 bp = Blueprint('main', __name__)
@@ -34,6 +35,21 @@ def get_recommendations():
             try:
                 # Get the initial chatbot response
                 chatbot_response = ai_service.get_response_reccomendation(user_question)
+
+                if chatbot_response['seed_artists']:
+                    possible_artists = {}
+                    for artist in chatbot_response['seed_artists']:
+                        possible_artists[artist] = get_artists_from_name(chatbot_response['seed_artists'], 5)
+
+                    return render_template(
+                            'playlists.html', 
+                            user_question=user_question, 
+                            chatbot_response=chatbot_response,
+                            possible_artists=possible_artists,
+                            user_name=sp.current_user()['display_name']
+                        )
+
+
             except Exception as e:
                 logging.error(f"Error during chatbot invocation: {e}")
                 output = "Sorry, an error occurred while processing your request."
@@ -85,11 +101,6 @@ def logout():
     
     # Redirect to the home page or login page
     return redirect(url_for('main.home'))
-
-@bp.route('/play_music')
-def play_music():
-    
-    return render_template('play_music.html')
 
 
 @bp.route('/get_spotify_token')

@@ -20,7 +20,7 @@ class AIService:
                 get_reccomendation_prompt()
             )
 
-            model = ChatOpenAI(openai_api_key=Config.OPEN_API_KEY, model="gpt-4o-mini")
+            model = ChatOpenAI(openai_api_key=Config.OPEN_API_KEY, model="gpt-4o-mini", temperature=0.3)
             format_output = StrOutputParser()
 
             chatbot_pipeline = prompt | model | format_output
@@ -35,7 +35,7 @@ class AIService:
                 get_response_artist_only_prompt()
             )
 
-            model = ChatOpenAI(openai_api_key=Config.OPEN_API_KEY, model_name="gpt-4o-mini")
+            model = ChatOpenAI(openai_api_key=Config.OPEN_API_KEY, model_name="gpt-4o-mini", temperature=0.3)
             format_output = StrOutputParser()
 
             artist_only_pipeline = prompt | model | format_output

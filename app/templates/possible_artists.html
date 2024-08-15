@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artist Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .artist-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .artist-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            width: 150px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .artist-card:hover {
+            background-color: #f0f0f0;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Artist Recommendations</h1>
+    <p>Here are some artists based on your input:</p>
+
+    <div id="artist-container" class="artist-container">
+        <!-- Artist cards will be inserted here by JavaScript -->
+    </div>
+
+    <div class="controls">
+        <button id="prev-btn" class="button" disabled>Previous</button>
+        <button id="next-btn" class="button">Next</button>
+    </div>
+
+    <script>
+        // Ensure the JSON data is properly embedded in a safe manner
+        const possibleArtists = JSON.parse('{{ possible_artists | tojson | safe }}');
+
+        let currentArtistIndex = 0;
+        const artistKeys = Object.keys(possibleArtists);
+
+        function renderArtists() {
+            const artistContainer = document.getElementById('artist-container');
+            artistContainer.innerHTML = '';
+
+            const artists = possibleArtists[artistKeys[currentArtistIndex]] || [];
+            artists.slice(0, 5).forEach(artist => {
+                const artistCard = document.createElement('div');
+                artistCard.className = 'artist-card';
+                artistCard.innerHTML = `
+                    <h3>${artist['name']}</h3>
+                    <img src="${artist['images']['url']}" alt="${artist['name']}" style="width:100px;height:100px;">
+                `;
+                artistCard.onclick = () => {
+                    alert('Artist selected: ' + artist.name);
+                    // Handle artist selection here
+                };
+                artistContainer.appendChild(artistCard);
+            });
+
+            // Update button states
+            document.getElementById('prev-btn').disabled = currentArtistIndex === 0;
+            document.getElementById('next-btn').disabled = currentArtistIndex >= artistKeys.length - 1;
+        }
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentArtistIndex > 0) {
+                currentArtistIndex--;
+                renderArtists();
+            }
+        });
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            if (currentArtistIndex < artistKeys.length - 1) {
+                currentArtistIndex++;
+                renderArtists();
+            }
+        });
+
+        // Initial render
+        renderArtists();
+    </script>
+</body>
+</html>
