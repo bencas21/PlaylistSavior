@@ -58,23 +58,27 @@
     </div>
 
     <script>
-        // Ensure the JSON data is properly embedded in a safe manner
+        // Ensure the JSON data is properly parsed in JavaScript
         const possibleArtists = JSON.parse('{{ possible_artists | tojson | safe }}');
 
         let currentArtistIndex = 0;
-        const artistKeys = Object.keys(possibleArtists);
+        const artistsPerPage = 5;
 
         function renderArtists() {
             const artistContainer = document.getElementById('artist-container');
             artistContainer.innerHTML = '';
 
-            const artists = possibleArtists[artistKeys[currentArtistIndex]] || [];
-            artists.slice(0, 5).forEach(artist => {
+            const start = currentArtistIndex * artistsPerPage;
+            const end = start + artistsPerPage;
+
+            const artists = possibleArtists.slice(start, end);
+
+            artists.forEach(artist => {
                 const artistCard = document.createElement('div');
                 artistCard.className = 'artist-card';
                 artistCard.innerHTML = `
-                    <h3>${artist['name']}</h3>
-                    <img src="${artist['images']['url']}" alt="${artist['name']}" style="width:100px;height:100px;">
+                    <h3>${artist.name}</h3>
+                    <img src="${artist.images[0] ? artist.images[0].url : ''}" alt="${artist.name}" style="width:100px;height:100px;">
                 `;
                 artistCard.onclick = () => {
                     alert('Artist selected: ' + artist.name);
@@ -85,7 +89,7 @@
 
             // Update button states
             document.getElementById('prev-btn').disabled = currentArtistIndex === 0;
-            document.getElementById('next-btn').disabled = currentArtistIndex >= artistKeys.length - 1;
+            document.getElementById('next-btn').disabled = end >= possibleArtists.length;
         }
 
         document.getElementById('prev-btn').addEventListener('click', () => {
@@ -96,7 +100,8 @@
         });
 
         document.getElementById('next-btn').addEventListener('click', () => {
-            if (currentArtistIndex < artistKeys.length - 1) {
+            const maxIndex = Math.ceil(possibleArtists.length / artistsPerPage) - 1;
+            if (currentArtistIndex < maxIndex) {
                 currentArtistIndex++;
                 renderArtists();
             }

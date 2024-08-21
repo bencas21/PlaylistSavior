@@ -94,6 +94,7 @@ def get_genre_list():
 
 def artist_name_to_id(artist_name):
     results = sp.search(q=f"artist:{artist_name}", type="artist")
+    
     if "artists" in results and "items" in results["artists"]:
         artists = results["artists"]["items"]
         if artists:

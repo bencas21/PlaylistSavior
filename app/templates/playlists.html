@@ -159,9 +159,11 @@
             </div>
         {% endif %}
         {% if chatbot_response %}
+            
             <div class="output-container">
                 <p>Chatbot Response:</p>
                 {% if chatbot_response|length > 0 %}
+                {% include 'possible_artists.html' %}
                 <ul class="chatbot-response-list">
                     {% for item in chatbot_response %}
                         <li>

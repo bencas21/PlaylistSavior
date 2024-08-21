@@ -33,6 +33,7 @@ def get_recommendations():
         user_question = request.form.get('user-input')  # Ensure this matches the input name in the form
         if user_question:
             try:
+                
                 # Get the initial chatbot response
                 chatbot_response = ai_service.get_response_reccomendation(user_question)
 
@@ -40,7 +41,7 @@ def get_recommendations():
                     possible_artists = {}
                     for artist in chatbot_response['seed_artists']:
                         possible_artists[artist] = get_artists_from_name(chatbot_response['seed_artists'], 5)
-
+                        
                     return render_template(
                             'playlists.html', 
                             user_question=user_question, 
@@ -52,12 +53,11 @@ def get_recommendations():
 
             except Exception as e:
                 logging.error(f"Error during chatbot invocation: {e}")
-                output = "Sorry, an error occurred while processing your request."
+                
 
         # Assuming `recomend_songs` formats or processes the chatbot response
         chatbot_response = recomend_songs(chatbot_response, user_question)
         session['tracks_for_playlist'] = []
-        
         return render_template(
             'playlists.html', 
             user_question=user_question, 
